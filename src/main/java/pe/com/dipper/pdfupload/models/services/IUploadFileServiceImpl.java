@@ -85,10 +85,10 @@ public class IUploadFileServiceImpl implements IUploadFileService {
     public void convertPdfToImage(String filename, String extension, Integer[] pags) throws IOException {
         PDDocument pdf2 = PDDocument.load(new File(filename));
         PDFRenderer pdfRenderer = new PDFRenderer(pdf2);
-        for (int page = 0; page < pags.length; ++page) {
-            BufferedImage bim = pdfRenderer.renderImageWithDPI(pags[page], 300, ImageType.RGB);
+        for (int page = 0; page < pags.length; page++) {
+            BufferedImage bim = pdfRenderer.renderImageWithDPI(pags[page] - 1, 100, ImageType.RGB);
             System.out.println("src/output/img-" + (page + 1));
-            ImageIOUtil.writeImage(bim, String.format("uploads/img-%d.%s", page + 1, extension), 300);
+            ImageIOUtil.writeImage(bim, String.format("uploads/img-%d.%s", page + 1, extension), 100);
         }
         pdf2.close();
     }
