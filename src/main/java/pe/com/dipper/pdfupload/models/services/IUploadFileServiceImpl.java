@@ -1,5 +1,9 @@
 package pe.com.dipper.pdfupload.models.services;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -8,11 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.pdfbox.tools.imageio.ImageIOUtil;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +19,6 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
 
 /**
  * @author Dipper
@@ -48,8 +46,8 @@ public class IUploadFileServiceImpl implements IUploadFileService {
     }
 
     @Override
-    public String copy(MultipartFile file) throws IOException {
-        String uniqueFilename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+    public String copy(MultipartFile file, String uuid) throws IOException {
+        String uniqueFilename = uuid + "_" + file.getOriginalFilename();
         Path rootPath = getPath(uniqueFilename);
 
         log.info("rootPath: " + rootPath);
@@ -82,14 +80,13 @@ public class IUploadFileServiceImpl implements IUploadFileService {
     }
 
     @Override
-    public void convertPdfToImage(String filename, String extension, Integer[] pags) throws IOException {
+    public void convertPdfToImage(String filename, String extension, Integer page, String uuid) throws IOException {
         PDDocument pdf2 = PDDocument.load(new File(filename));
         PDFRenderer pdfRenderer = new PDFRenderer(pdf2);
-        for (int page = 0; page < pags.length; page++) {
-            BufferedImage bim = pdfRenderer.renderImageWithDPI(pags[page] - 1, 100, ImageType.RGB);
-            System.out.println("src/output/img-" + (page + 1));
-            ImageIOUtil.writeImage(bim, String.format("uploads/img-%d.%s", page + 1, extension), 100);
-        }
+        BufferedImage bim = pdfRenderer.renderImageWithDPI(page - 1, 100, ImageType.RGB);
+        System.out.println("src/output/img-" + uuid);
+        ImageIOUtil.writeImage(bim, String.format("uploads/%s.%s", uuid, extension), 100);
+
         pdf2.close();
     }
 

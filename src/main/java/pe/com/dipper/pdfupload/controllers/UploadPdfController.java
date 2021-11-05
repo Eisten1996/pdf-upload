@@ -11,13 +11,14 @@ import pe.com.dipper.pdfupload.models.services.IUploadFileService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.UUID;
 
 /**
  * @author Dipper
  * @project pdf-upload
  * @created 19/11/2020 - 15:46
  */
-@CrossOrigin(origins = {"http://localhost:4200"})
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api")
 public class UploadPdfController {
@@ -36,16 +37,17 @@ public class UploadPdfController {
     }
 
     @RequestMapping(value = "/form", method = RequestMethod.POST)
-    public ResponseEntity<ResponseMessage> guardar(@RequestParam("file") MultipartFile pdf, @RequestParam("pags") String pags) {
-        Integer[] pages = {Integer.parseInt(pags)};
+    public ResponseEntity<ResponseMessage> guardar(@RequestParam("file") MultipartFile pdf, @RequestParam("page") String page) {
+        Integer pag = Integer.parseInt(page);
         String message = "";
         String uniqueFilename = null;
         try {
-            uniqueFilename = uploadFileService.copy(pdf);
+            String uuid = UUID.randomUUID().toString();
+            uniqueFilename = uploadFileService.copy(pdf, uuid);
             System.out.println(uniqueFilename);
             message = "Uploaded the file successfully: " + pdf.getOriginalFilename();
-            uploadFileService.convertPdfToImage("uploads\\" + uniqueFilename, "jpg", pages);
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            uploadFileService.convertPdfToImage("uploads\\" + uniqueFilename, "jpg", pag, uuid);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message, uuid));
         } catch (IOException e) {
             message = "Could not upload the file: " + pdf.getOriginalFilename() + "!";
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));

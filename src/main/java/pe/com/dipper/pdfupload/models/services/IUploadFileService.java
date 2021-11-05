@@ -17,7 +17,7 @@ public interface IUploadFileService {
 
     public Resource load(String filename) throws MalformedURLException;
 
-    public String copy(MultipartFile file) throws IOException;
+    public String copy(MultipartFile file, String uuid) throws IOException;
 
     public boolean delete(String filename);
 
@@ -25,5 +25,5 @@ public interface IUploadFileService {
 
     public void init() throws IOException;
 
-    public void convertPdfToImage(String filename, String extension, Integer pags[]) throws IOException;
+    public void convertPdfToImage(String filename, String extension, Integer page, String uuid) throws IOException;
 }
